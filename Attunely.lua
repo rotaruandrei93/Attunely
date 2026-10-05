@@ -39,7 +39,7 @@ local RAIDS = {
   { key = "bwl", label = "Blackwing Lair",     quest = "Blackhand's Command", qid = 7761 },
   { key = "es",  label = "Emerald Sanctum",    item  = "Gemstone of Ysera" },
   { key = "nax", label = "Naxxramas",          quest = "The Dread Citadel - Naxxramas", qid = 9121 },
-  { key = "kut", label = "Karazhan Upper Key", item  = "Upper Karazhan Tower Key" },
+  { key = "kut", label = "Upper Karazhan Tower Key", item  = "Upper Karazhan Tower Key" },
   { key = "ksm", label = "Karazhan Scepter",   item  = "Scepter of Medivh" },
 }
 -- ===============================================
@@ -296,7 +296,7 @@ local function ScanLockouts()
 end
 
 local function ScanAll()
-  ScanBags({0, 1, 2, 3, 4})
+  ScanBags({-2, 0, 1, 2, 3, 4})  -- -2 = keyring
   ScanEquipped()
   ScanQuests(false)
   ScanZone()
