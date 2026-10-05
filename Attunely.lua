@@ -166,7 +166,15 @@ local function ScanBags(bagList)
       local pat = "[" .. r.item .. "]"
       for b = 1, getn(bagList) do
         local bag = bagList[b]
-        for slot = 1, GetContainerNumSlots(bag) do
+        local size = GetContainerNumSlots(bag) or 0
+        if bag == -2 then
+          -- the keyring can report 0 slots through GetContainerNumSlots on 1.12 clients
+          local ks = 0
+          if GetKeyRingSize then ks = GetKeyRingSize() or 0 end
+          if ks < 32 then ks = 32 end
+          if ks > size then size = ks end
+        end
+        for slot = 1, size do
           local link = GetContainerItemLink(bag, slot)
           if link and string.find(link, pat, 1, true) then
             AttuneDB.me[r.key] = 1
