@@ -1,4 +1,4 @@
--- Attunely 2.2 - Vanilla 1.12.1 / Turtle WoW / Capycraft
+-- Attunely 1.0 - Vanilla 1.12.1 / Turtle WoW / Capycraft
 -- Everyone in the guild needs this addon installed for the data to show up.
 
 local PREFIX = "ATTUNE"
@@ -422,7 +422,7 @@ local function ApplyTheme()
     Anchor()
     Align()
   else
-    offL, offR, offY = 0, 0, 6  -- raise to shrink the gap, lower to widen it
+    offL, offR, offY = 0, 0, 30  -- raise to shrink the gap, lower to widen it
     if panel.backdrop then panel.backdrop:Hide() end
     panel:SetBackdrop({
       bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
@@ -955,10 +955,33 @@ LayoutRoster = function()
   end
 end
 
+-- helpers grouped in one table: Lua 5.0 allows at most 32 upvalues per function
+local H = {
+  SkinFrame = SkinFrame,
+  SkinButton = SkinButton,
+  SkinClose = SkinClose,
+  SkinCheck = SkinCheck,
+  SkinEdit = SkinEdit,
+  SkinScroll = SkinScroll,
+  Send = Send,
+  AgeText = AgeText,
+  MyName = MyName,
+  Print = Print,
+  CycleRaid = CycleRaid,
+  OutputMissing = OutputMissing,
+  ResetScroll = ResetScroll,
+  UpdateButtonTexts = UpdateButtonTexts,
+  ROW_H = ROW_H,
+  VISIBLE = VISIBLE,
+  NAME_W = NAME_W,
+  COL_W = COL_W,
+}
+
+
 local function CreateRoster()
   roster = CreateFrame("Frame", "AttuneRosterFrame", UIParent)
   roster:SetWidth(520)
-  roster:SetHeight(106 + VISIBLE * ROW_H + T.extraH)
+  roster:SetHeight(106 + H.VISIBLE * H.ROW_H + T.extraH)
   roster:SetPoint("CENTER", UIParent, "CENTER", 0, 40)
   roster:SetFrameStrata("DIALOG")
   roster:SetMovable(true)
@@ -983,13 +1006,13 @@ local function CreateRoster()
 
   local close = CreateFrame("Button", "AttuneRosterClose", roster, "UIPanelCloseButton")
   close:SetPoint("TOPRIGHT", roster, "TOPRIGHT", T.closeOff, T.closeOff)
-  SkinClose(close)
+  H.SkinClose(close)
 
   if not pfUI then
     local lb = CreateFrame("Frame", nil, roster)
     lb:SetPoint("TOPLEFT", roster, "TOPLEFT", 12, -84)
     lb:SetPoint("TOPRIGHT", roster, "TOPRIGHT", -12, -84)
-    lb:SetHeight(VISIBLE * ROW_H + 26)
+    lb:SetHeight(H.VISIBLE * H.ROW_H + 26)
     lb:SetBackdrop({
       bgFile = "Interface\\Buttons\\WHITE8X8",
       edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -1002,10 +1025,10 @@ local function CreateRoster()
   end
   scroll = CreateFrame("ScrollFrame", "AttuneRosterScroll", roster, "FauxScrollFrameTemplate")
   scroll:SetPoint("TOPLEFT", roster, "TOPLEFT", 14, -106)
-  scroll:SetHeight(VISIBLE * ROW_H)
+  scroll:SetHeight(H.VISIBLE * H.ROW_H)
   scroll:SetWidth(400)
   scroll:SetScript("OnVerticalScroll", function()
-    FauxScrollFrame_OnVerticalScroll(ROW_H, RefreshRoster)
+    FauxScrollFrame_OnVerticalScroll(H.ROW_H, RefreshRoster)
   end)
   local sbar = getglobal("AttuneRosterScrollScrollBar")
   if sbar then
@@ -1015,7 +1038,7 @@ local function CreateRoster()
   end
   roster:SetScript("OnMouseWheel", function()
     local sb = getglobal("AttuneRosterScrollScrollBar")
-    if sb then sb:SetValue(sb:GetValue() - arg1 * ROW_H * 2) end
+    if sb then sb:SetValue(sb:GetValue() - arg1 * H.ROW_H * 2) end
   end)
 
   -- search
@@ -1039,7 +1062,7 @@ local function CreateRoster()
       local cb = getglobal("AttuneRosterClear")
       if cb then if searchText ~= "" then cb:Show() else cb:Hide() end end
     end
-    ResetScroll()
+    H.ResetScroll()
     RefreshRoster()
   end)
   searchBox:SetScript("OnEscapePressed", function() this:ClearFocus() end)
@@ -1056,7 +1079,7 @@ local function CreateRoster()
       searchBox:SetText("")
       searchBox:ClearFocus()
     end)
-    SkinButton(clr)
+    H.SkinButton(clr)
   else
     searchBox:SetTextInsets(6, 24, 0, 0)
     clr = CreateFrame("Button", "AttuneRosterClear", roster)
@@ -1082,7 +1105,7 @@ local function CreateRoster()
   if pfUI then raidBtn:SetPoint("LEFT", clr, "RIGHT", 8, 0) else raidBtn:SetPoint("LEFT", searchBox, "RIGHT", 10, 0) end
   raidBtn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
   raidBtn:SetScript("OnClick", function()
-    if arg1 == "RightButton" then CycleRaid(-1) else CycleRaid(1) end
+    if arg1 == "RightButton" then H.CycleRaid(-1) else H.CycleRaid(1) end
   end)
   raidBtn:SetScript("OnEnter", function()
     GameTooltip:SetOwner(this, "ANCHOR_TOP")
@@ -1091,7 +1114,7 @@ local function CreateRoster()
     GameTooltip:Show()
   end)
   raidBtn:SetScript("OnLeave", function() GameTooltip:Hide() end)
-  SkinButton(raidBtn)
+  H.SkinButton(raidBtn)
 
   showBtn = CreateFrame("Button", "AttuneRosterShow", roster, "UIPanelButtonTemplate")
   showBtn:SetWidth(T.showW)
@@ -1099,16 +1122,16 @@ local function CreateRoster()
   showBtn:SetPoint("LEFT", raidBtn, "RIGHT", 6, 0)
   showBtn:SetScript("OnClick", function()
     if raidIdx == 0 then
-      Print("Pick a raid first, then choose Everyone / Missing / Attuned.")
+      H.Print("Pick a raid first, then choose Everyone / Missing / Attuned.")
       return
     end
     showMode = showMode + 1
     if showMode > 3 then showMode = 1 end
-    UpdateButtonTexts()
-    ResetScroll()
+    H.UpdateButtonTexts()
+    H.ResetScroll()
     RefreshRoster()
   end)
-  SkinButton(showBtn)
+  H.SkinButton(showBtn)
 
   local function MakeCheck(name, text, x, setter)
     local cb = CreateFrame("CheckButton", name, roster, "UICheckButtonTemplate")
@@ -1120,10 +1143,10 @@ local function CreateRoster()
     if fs and not pfUI and GameFontNormal then fs:SetFontObject(GameFontNormal) end
     cb:SetScript("OnClick", function()
       setter(this:GetChecked() and true or false)
-      ResetScroll()
+      H.ResetScroll()
       RefreshRoster()
     end)
-    SkinCheck(cb)
+    H.SkinCheck(cb)
     return cb
   end
   MakeCheck("AttuneChkOnline", "Online only", 14, function(v) onlyOnline = v end)
@@ -1133,7 +1156,7 @@ local function CreateRoster()
   -- headers
   hdrName = CreateFrame("Button", nil, roster)
   hdrName:SetHeight(16)
-  hdrName:SetWidth(NAME_W)
+  hdrName:SetWidth(H.NAME_W)
   hdrName:SetPoint("TOPLEFT", roster, "TOPLEFT", 14, -88)
   local hf = hdrName:CreateFontString(nil, "OVERLAY", T.fN)
   hf:SetPoint("LEFT", hdrName, "LEFT", 4, 0)
@@ -1144,7 +1167,7 @@ local function CreateRoster()
   end)
   for j = 1, getn(RAIDS) do
     local h = CreateFrame("Button", nil, roster)
-    h:SetWidth(COL_W)
+    h:SetWidth(H.COL_W)
     h:SetHeight(16)
     local fs = h:CreateFontString(nil, "OVERLAY", T.fN)
     fs:SetPoint("CENTER", h, "CENTER", 0, 0)
@@ -1164,11 +1187,11 @@ local function CreateRoster()
   end
 
   -- rows
-  for i = 1, VISIBLE do
+  for i = 1, H.VISIBLE do
     local row = CreateFrame("Button", nil, roster)
-    row:SetHeight(ROW_H)
+    row:SetHeight(H.ROW_H)
     row:SetWidth(400)
-    row:SetPoint("TOPLEFT", roster, "TOPLEFT", 14, -106 - (i - 1) * ROW_H)
+    row:SetPoint("TOPLEFT", roster, "TOPLEFT", 14, -106 - (i - 1) * H.ROW_H)
     row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
     row.nameFS = row:CreateFontString(nil, "OVERLAY", T.fH)
     row.nameFS:SetPoint("LEFT", row, "LEFT", 4, 0)
@@ -1182,10 +1205,10 @@ local function CreateRoster()
       GameTooltip:SetOwner(this, "ANCHOR_RIGHT")
       GameTooltip:SetText(e.name)
       GameTooltip:AddLine("Level " .. (e.level or "?") .. " " .. (e.class or ""), 1, 1, 1)
-      if e.name == MyName() then
+      if e.name == H.MyName() then
         GameTooltip:AddLine("You (live)", 0.6, 0.6, 0.6)
       elseif e.t then
-        GameTooltip:AddLine("Data updated " .. AgeText(time() - e.t), 0.6, 0.6, 0.6)
+        GameTooltip:AddLine("Data updated " .. H.AgeText(time() - e.t), 0.6, 0.6, 0.6)
       else
         GameTooltip:AddLine("No data (needs the addon, be online)", 0.6, 0.6, 0.6)
       end
@@ -1205,7 +1228,7 @@ local function CreateRoster()
   post:SetHeight(T.btnH)
   post:SetPoint("BOTTOMRIGHT", roster, "BOTTOMRIGHT", T.postX, T.postY)
   post:SetText("Post missing")
-  post:SetScript("OnClick", function() OutputMissing(true) end)
+  post:SetScript("OnClick", function() H.OutputMissing(true) end)
   post:SetScript("OnEnter", function()
     GameTooltip:SetOwner(this, "ANCHOR_TOP")
     GameTooltip:SetText("Post missing")
@@ -1213,15 +1236,15 @@ local function CreateRoster()
     GameTooltip:Show()
   end)
   post:SetScript("OnLeave", function() GameTooltip:Hide() end)
-  SkinButton(post)
+  H.SkinButton(post)
 
   local prt = CreateFrame("Button", "AttuneRosterPrint", roster, "UIPanelButtonTemplate")
   prt:SetWidth(T.botW)
   prt:SetHeight(T.btnH)
   prt:SetPoint("RIGHT", post, "LEFT", -4, 0)
   prt:SetText("Print missing")
-  prt:SetScript("OnClick", function() OutputMissing(false) end)
-  SkinButton(prt)
+  prt:SetScript("OnClick", function() H.OutputMissing(false) end)
+  H.SkinButton(prt)
 
   local ref = CreateFrame("Button", "AttuneRosterRefresh", roster, "UIPanelButtonTemplate")
   ref:SetWidth(T.botW)
@@ -1230,21 +1253,21 @@ local function CreateRoster()
   ref:SetText("Refresh")
   ref:SetScript("OnClick", function()
     GuildRoster()
-    Send("Q")
-    Print("Asked the guild to resend attunements.")
+    H.Send("Q")
+    H.Print("Asked the guild to resend attunements.")
   end)
-  SkinButton(ref)
+  H.SkinButton(ref)
 
-  SkinEdit(searchBox)
-  SkinScroll()
+  H.SkinEdit(searchBox)
+  H.SkinScroll()
   roster:SetScript("OnShow", function()
-    SkinFrame(roster)
+    H.SkinFrame(roster)
     LayoutRoster()
-    UpdateButtonTexts()
+    H.UpdateButtonTexts()
     RefreshRoster()
   end)
 
-  UpdateButtonTexts()
+  H.UpdateButtonTexts()
   LayoutRoster()
 end
 
