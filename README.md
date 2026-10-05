@@ -1,3 +1,5 @@
+[![Join our Discord](https://img.shields.io/badge/Discord-Join%20our%20server-5865F2?logo=discord&logoColor=white)](https://discord.gg/XDMJVczNcY)
+
 # Attunely
 
 Raid attunement checker for **Turtle WoW / Capycraft** (Vanilla 1.12). See which raid attunements you and your guildmates have, from the guild panel, a guild-wide roster window, or the right-click menu. It includes custom server content like Emerald Sanctum and the Karazhan keys.
