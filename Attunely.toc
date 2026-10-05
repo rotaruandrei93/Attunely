@@ -1,0 +1,8 @@
+## Interface: 11200
+## Title: Attunely
+## Notes: Raid attunement checker with guild panel inspect (Turtle WoW / Capycraft)
+## Author: Ironshield (rotaruandrei93)
+## Version: 1.0
+## OptionalDeps: pfUI, pfQuest, Questie
+## SavedVariables: AttuneDB
+Attunely.lua
